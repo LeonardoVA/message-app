@@ -11,7 +11,7 @@ If the file is run with no arguments it trys to connect to server, failing that 
 
 Once run and client/server set up: the client/server can read what the other types, the messages are sent over a socket. This turns the console into a makeshift chat client, This works locally at the moment on port 55555, so you can have 2 shells communicating.  
 
-TODO:
+TODO:  
 Get the chat client working for two different computers.  
 Ensure the Client works cross platform: test linux/windows.  
 Encrypt the messages with rsa encryption.  
