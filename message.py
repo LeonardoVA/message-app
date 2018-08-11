@@ -5,6 +5,12 @@ import threading
 
 import Crypto
 
+# Global used for receive thread so it knows to stop if
+# this process sent an exit, not used on receive as rec is daemon
+# consider reworking into class
+RUNNING = True
+
+
 def check_ip_addr_valid(ip_string):
     """returns binary format of address if valid"""
     try:
@@ -14,26 +20,43 @@ def check_ip_addr_valid(ip_string):
         print("Please enter a valid ip address for connecting to.")
         exit(1)
 
+def check_should_exit(message):
+    """Check message to see if it was an exit command"""
+    global RUNNING
+    print("Check exit command '{}' running: {}".format(message, RUNNING))
+    if message == 'exit':
+        RUNNING = False
+        print("running 1: {}".format(RUNNING))
+        return True
+
+
+
 def send_message(conn):
     """Sets up sending a message from user input into shell"""
     with conn:
         while True:
             message = input("")
             # requires byte format
-            conn.sendall(message.encode('UTF-8'))
+            enc_message = message.encode('UTF-8')
+            conn.sendall(enc_message)
+            if check_should_exit(message):
+                break
 
 def receive_message(conn):
     """Sets up reciving a message and displaying it"""
+    global RUNNING
     with conn:
-        while True:
+        while RUNNING:
+            print("running 2: {}".format(RUNNING))
             data = conn.recv(1024)
             decoded_data = data.decode("UTF-8")
 
             # if the incoming bytes are not empty show on screen
             if decoded_data != '':
                 print("Other: {}".format(decoded_data))
-                if decoded_data == 'exit':
+                if check_should_exit(decoded_data):
                     break
+
 
 
 def setup_socket_listen(listen_port=55555):
@@ -56,11 +79,14 @@ def setup_send_socket(port=55555):
 
 def setup_send_rec_threads(conn):
     """"Set up threads to deal with sending and receiving messages"""
-    send = threading.Thread(target=send_message, args=(conn,))
+    send = threading.Thread(daemon=True, target=send_message, args=(conn,))
     rec = threading.Thread(target=receive_message, args=(conn,))
     send.start()
     rec.start()
-    send.join()
+
+    # No join for daemon thread as when a process gets a exit message from
+    # the other process the send hangs on input and never exits until user
+    # inputs - now without join it won;t weait for it to finish and terminate
     rec.join()
 
 
