@@ -26,7 +26,6 @@ def check_should_exit(message):
     print("Check exit command '{}' running: {}".format(message, RUNNING))
     if message == 'exit':
         RUNNING = False
-        print("running 1: {}".format(RUNNING))
         return True
     return False
 
@@ -45,7 +44,6 @@ def receive_message(conn):
     """Sets up reciving a message and displaying it"""
     with conn:
         while RUNNING:
-            print("running 2: {}".format(RUNNING))
             data = conn.recv(1024)
             decoded_data = data.decode("UTF-8")
 
