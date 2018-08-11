@@ -28,8 +28,7 @@ def check_should_exit(message):
         RUNNING = False
         print("running 1: {}".format(RUNNING))
         return True
-
-
+    return False
 
 def send_message(conn):
     """Sets up sending a message from user input into shell"""
@@ -44,7 +43,6 @@ def send_message(conn):
 
 def receive_message(conn):
     """Sets up reciving a message and displaying it"""
-    global RUNNING
     with conn:
         while RUNNING:
             print("running 2: {}".format(RUNNING))
